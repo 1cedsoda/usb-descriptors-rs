@@ -1,0 +1,7 @@
+[package]
+name = "usb-descriptors"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+result = "1.0.0"
