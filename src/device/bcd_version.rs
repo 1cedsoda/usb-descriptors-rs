@@ -17,31 +17,31 @@ impl EncodeBytes for BcdVersion {
     }
 }
 
-pub const USB_1_0: BcdVersion = BcdVersion {
+pub const US1_0: BcdVersion = BcdVersion {
     major: 0x01,
     minor: 0x00,
 };
-pub const USB_1_1: BcdVersion = BcdVersion {
+pub const US1_1: BcdVersion = BcdVersion {
     major: 0x01,
     minor: 0x01,
 };
-pub const USB_2_0: BcdVersion = BcdVersion {
+pub const US2_0: BcdVersion = BcdVersion {
     major: 0x02,
     minor: 0x00,
 };
-pub const USB_2_1: BcdVersion = BcdVersion {
+pub const US2_1: BcdVersion = BcdVersion {
     major: 0x02,
     minor: 0x01,
 };
-pub const USB_3_0: BcdVersion = BcdVersion {
+pub const US3_0: BcdVersion = BcdVersion {
     major: 0x03,
     minor: 0x00,
 };
-pub const USB_3_1: BcdVersion = BcdVersion {
+pub const US3_1: BcdVersion = BcdVersion {
     major: 0x03,
     minor: 0x01,
 };
-pub const USB_3_2: BcdVersion = BcdVersion {
+pub const US3_2: BcdVersion = BcdVersion {
     major: 0x03,
     minor: 0x02,
 };

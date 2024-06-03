@@ -2,32 +2,34 @@ use alloc::vec::Vec;
 
 use crate::{
     descriptor_type::DescriptorType, interface::interface_node::InterfaceNode,
-    string::string::String,
+    string::string_intrinsics::StringIntrinsics,
 };
 
 use super::{
-    configuration::Configuration, configuration_attributes::ConfigurationAttributes,
-    milliamperes::Milliamperes,
+    configuration_attributes::ConfigurationAttributes,
+    configuration_intrinsics::ConfigurationIntrinsics, milliamperes::Milliamperes,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ConfigurationNode {
-    pub b_configuration_value: u8,
-    pub bm_attributes: ConfigurationAttributes,
+    /// Turns into `bConfigurationValue`
+    pub configuration_value: u8,
+    /// Turns into `bmAttributes`
+    pub attributes: ConfigurationAttributes,
     /// Max power consumption of the USB device from the bus in milliamperes. (Will be divided by to to fit u8 later)
-    pub b_max_power: Milliamperes,
-    /// Turns into i_configuration
-    pub configuration: String,
-    /// Turns into b_num_interfaces
+    pub max_power: Milliamperes,
+    /// Turns into `configuration`
+    pub configuration: StringIntrinsics,
+    /// Turns into `num_interfaces`
     pub interfaces: Vec<InterfaceNode>,
 }
 
 impl ConfigurationNode {
-    pub fn get_configuration(&self) -> Configuration {
-        Configuration {
-            b_descriptor_type: DescriptorType::Configuration,
-            bm_attributes: self.bm_attributes,
-            b_max_power: self.b_max_power,
+    pub fn get_configuration(&self) -> ConfigurationIntrinsics {
+        ConfigurationIntrinsics {
+            descriptor_type: DescriptorType::Configuration,
+            attributes: self.attributes,
+            max_power: self.max_power,
         }
     }
 }

@@ -30,8 +30,8 @@ impl EncodeByte for DescriptorType {
 }
 
 impl DescriptorType {
-    pub fn from_w_value(w_value: u16) -> Result<Self, &'static str> {
-        match w_value {
+    pub fn from_value(value: u16) -> Result<Self, &'static str> {
+        match value {
             0x0100 => Ok(DescriptorType::Device),
             0x0200 => Ok(DescriptorType::Configuration),
             0x0400 => Ok(DescriptorType::Interface),

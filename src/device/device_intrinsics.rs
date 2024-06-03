@@ -1,16 +1,12 @@
-use alloc::vec::Vec;
-
-use crate::{
-    configuration::configuration_node::ConfigurationNode,
-    string::string_intrinsics::StringIntrinsics,
-};
+use crate::descriptor_type::DescriptorType;
 
 use super::{
-    bcd_version::BcdVersion, device_device_class::DeviceDeviceClass,
-    device_intrinsics::DeviceIntrinsics,
+    bcd_version::BcdVersion, device_descriptor::DeviceDescriptor,
+    device_device_class::DeviceDeviceClass,
 };
 
-pub struct DeviceNode {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DeviceIntrinsics {
     /// Turns into `bcdUSB`
     pub bcd_usb: BcdVersion,
     /// Turns into `bDeviceClass`
@@ -27,19 +23,22 @@ pub struct DeviceNode {
     pub id_product: u16,
     /// Turns into `bcdDevice`
     pub bcd_device: BcdVersion,
-    /// Turns into `iManufacturer`
-    pub manufacturer: StringIntrinsics,
-    /// Turns into `iProduct`
-    pub product: StringIntrinsics,
-    /// Turns into `iSerialNumber`
-    pub serial_number: StringIntrinsics,
-    /// Turns into `bNumConfigurations`
-    pub configurations: Vec<ConfigurationNode>,
 }
 
-impl DeviceNode {
-    pub fn get_device(&self) -> DeviceIntrinsics {
-        DeviceIntrinsics {
+impl DeviceIntrinsics {
+    pub fn build(
+        &self,
+        num_configurations: u8,
+        manufacturer: u8,
+        product: u8,
+        serial_number: u8,
+    ) -> Result<DeviceDescriptor, &str> {
+        self.device_class
+            .validate(self.device_suclass, self.device_protocol)?;
+
+        Ok(DeviceDescriptor {
+            length: 18,
+            descriptor_type: DescriptorType::Device,
             bcd_usb: self.bcd_usb,
             device_class: self.device_class,
             device_suclass: self.device_suclass,
@@ -48,6 +47,10 @@ impl DeviceNode {
             id_vendor: self.id_vendor,
             id_product: self.id_product,
             bcd_device: self.bcd_device,
-        }
+            manufacturer: manufacturer,
+            product: product,
+            serial_number: serial_number,
+            num_configurations,
+        })
     }
 }

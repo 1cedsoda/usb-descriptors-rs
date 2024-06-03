@@ -18,61 +18,61 @@ impl EncodeByte for DeviceDeviceClass {
 }
 
 impl DeviceDeviceClass {
-    pub fn validate(&self, b_sub_class: u8, b_protocol: u8) -> Result<(), &str> {
+    pub fn validate(&self, suclass: u8, protocol: u8) -> Result<(), &str> {
         let error: Result<(), &str> = Err("The device base class is not compatible with the interface subclass and protocol. Pease check https://www.usb.org/defined-class-codes");
         match self {
-            DeviceDeviceClass::Device => match b_sub_class {
-                0x00 => match b_protocol {
+            DeviceDeviceClass::Device => match suclass {
+                0x00 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
             DeviceDeviceClass::CommunicationAndCDCControl => Ok(()),
-            DeviceDeviceClass::Hub => match b_sub_class {
-                0x00 => match b_protocol {
+            DeviceDeviceClass::Hub => match suclass {
+                0x00 => match protocol {
                     0x00 | 0x01 | 0x02 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            DeviceDeviceClass::Billboard => match b_sub_class {
-                0x00 => match b_protocol {
+            DeviceDeviceClass::Billboard => match suclass {
+                0x00 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            DeviceDeviceClass::Diagnostic => match b_sub_class {
-                0x01 => match b_protocol {
+            DeviceDeviceClass::Diagnostic => match suclass {
+                0x01 => match protocol {
                     0x01 => Ok(()),
                     _ => error,
                 },
-                0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 => match b_protocol {
+                0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 => match protocol {
                     0x00 | 0x01 => Ok(()),
                     _ => error,
                 },
-                0x08 => match b_protocol {
+                0x08 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            DeviceDeviceClass::Miscellaneous => match b_sub_class {
-                0x01 | 0x02 | 0x06 => match b_protocol {
+            DeviceDeviceClass::Miscellaneous => match suclass {
+                0x01 | 0x02 | 0x06 => match protocol {
                     0x01 => Ok(()),
                     0x02 => Ok(()),
                     _ => error,
                 },
-                0x03 => match b_protocol {
+                0x03 => match protocol {
                     0x01 => Ok(()),
                     _ => error,
                 },
-                0x04 => match b_protocol {
+                0x04 => match protocol {
                     0x01 | 0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 => Ok(()),
                     _ => error,
                 },
-                0x05 | 0x07 => match b_protocol {
+                0x05 | 0x07 => match protocol {
                     0x00 | 0x01 | 0x02 => Ok(()),
                     _ => error,
                 },

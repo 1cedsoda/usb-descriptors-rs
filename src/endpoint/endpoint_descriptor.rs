@@ -6,64 +6,70 @@ use super::{endpoint_address::EndpointAddress, endpoint_attributes::EndpointAttr
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EndpointDescriptor {
-    pub b_length: u8,
-    pub b_descriptor_type: DescriptorType,
-    pub b_endpoint_address: EndpointAddress,
-    pub bm_attributes: EndpointAttributes,
-    pub w_max_packet_size: u16,
-    pub b_interval: u8,
+    /// Turns into `bLength`
+    pub length: u8,
+    /// Turns into `bDescriptorType`
+    pub descriptor_type: DescriptorType,
+    /// Turns into `bEndpointAddress`
+    pub endpoint_address: EndpointAddress,
+    /// Turns into `bmAttributes`
+    pub attributes: EndpointAttributes,
+    /// Turns into `wMaxPacketSize`
+    pub max_packet_size: u16,
+    /// Turns into `bInterval`
+    pub interval: u8,
 }
 
 impl Descriptor for EndpointDescriptor {
     fn encode(&self) -> Result<Vec<u8>, &str> {
         let mut bytes = Vec::<u8>::new();
-        bytes.push(self.b_length);
+        bytes.push(self.length);
         bytes.push(DescriptorType::Endpoint.encode()?);
-        bytes.push(self.b_endpoint_address.encode()?);
-        bytes.push(self.bm_attributes.encode()?);
-        bytes.extend_from_slice(&self.w_max_packet_size.to_le_bytes());
-        bytes.push(self.b_interval);
-        
-        if bytes.len() != self.b_length as usize {
-            return Err("b_length does not match the actual length");
+        bytes.push(self.endpoint_address.encode()?);
+        bytes.push(self.attributes.encode()?);
+        bytes.extend_from_slice(&self.max_packet_size.to_le_bytes());
+        bytes.push(self.interval);
+
+        if bytes.len() != self.length as usize {
+            return Err("length does not match the actual length");
         }
 
         Ok(bytes)
     }
 
     fn get_w_value(&self) -> u16 {
-        (self.b_descriptor_type.encode().unwrap() as u16) << 8
-            | self.b_endpoint_address.encode().unwrap() as u16
+        (self.descriptor_type.encode().unwrap() as u16) << 8
+            | self.endpoint_address.encode().unwrap() as u16
     }
-    
+
     fn get_descriptor_type(&self) -> DescriptorType {
-        self.b_descriptor_type
+        self.descriptor_type
     }
 }
 
 #[cfg(test)]
 pub mod tests {
     use crate::endpoint::{
-        direction::Direction, endpoint::Endpoint, sync_type::SyncType, transfer_type::TransferType,
-        usage_type::UsageType,
+        direction::Direction, endpoint_intrinsics::EndpointIntrinsics, sync_type::SyncType,
+        transfer_type::TransferType, usage_type::UsageType,
     };
 
     use super::*;
 
     #[test]
     fn test_encode() {
-        let endpoint_descriptor = Endpoint {
-            b_endpoint_address: EndpointAddress {
+        let endpoint_descriptor = EndpointIntrinsics {
+            endpoint_address: EndpointAddress {
                 endpoint_number: 1,
                 direction: Direction::In,
             },
-            bm_attributes: EndpointAttributes {
+            attributes: EndpointAttributes {
                 transfer_type: TransferType::Interrupt,
                 sync_type: SyncType::NoSync,
                 usage_type: UsageType::Data,
             },
-            w_max_packet_size: 16,
-            b_interval: 10,
+            max_packet_size: 16,
+            interval: 10,
         }
         .build()
         .unwrap();

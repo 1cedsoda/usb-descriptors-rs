@@ -1,28 +1,36 @@
 use alloc::vec::Vec;
 
-use crate::{endpoint::endpoint::Endpoint, string::string::String};
+use crate::{
+    endpoint::endpoint_intrinsics::EndpointIntrinsics, string::string_intrinsics::StringIntrinsics,
+};
 
-use super::{interface::Interface, interface_device_class::InterfaceDeviceClass};
+use super::{
+    interface_device_class::InterfaceDeviceClass, interface_intrinics::InterfaceIntrinics,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InterfaceNode {
-    pub b_alternate_setting: u8,
-    pub b_interface_class: InterfaceDeviceClass,
-    pub b_interface_sub_class: u8,
-    pub b_interface_protocol: u8,
-    /// Turns into i_interface
-    pub interface: String,
-    /// Turns into b_num_endpoints
-    pub endpoints: Vec<Endpoint>,
+    /// Turns into `bAlternateSetting`
+    pub alternate_setting: u8,
+    /// Turns into `bInterfaceClass`
+    pub interface_class: InterfaceDeviceClass,
+    /// Turns into `bInterfaceSubClass`
+    pub interface_suclass: u8,
+    /// Turns into `bInterfaceProtocol`
+    pub interface_protocol: u8,
+    /// Turns into `iInterface`
+    pub interface: StringIntrinsics,
+    /// Turns into `bNumEndpoints`
+    pub endpoints: Vec<EndpointIntrinsics>,
 }
 
 impl InterfaceNode {
-    pub fn get_interface(&self) -> Interface {
-        Interface {
-            b_alternate_setting: self.b_alternate_setting,
-            b_interface_class: self.b_interface_class,
-            b_interface_sub_class: self.b_interface_sub_class,
-            b_interface_protocol: self.b_interface_protocol,
+    pub fn get_interface(&self) -> InterfaceIntrinics {
+        InterfaceIntrinics {
+            alternate_setting: self.alternate_setting,
+            interface_class: self.interface_class,
+            interface_suclass: self.interface_suclass,
+            interface_protocol: self.interface_protocol,
         }
     }
 }

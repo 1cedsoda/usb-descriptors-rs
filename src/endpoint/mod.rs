@@ -1,5 +1,5 @@
 pub mod direction;
-pub mod endpoint;
+pub mod endpoint_intrinsics;
 pub mod endpoint_address;
 pub mod endpoint_attributes;
 pub mod endpoint_descriptor;

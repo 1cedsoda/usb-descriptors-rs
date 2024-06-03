@@ -33,15 +33,15 @@ impl EncodeByte for InterfaceDeviceClass {
 }
 
 impl InterfaceDeviceClass {
-    pub fn validate(&self, b_sub_class: u8, b_protocol: u8) -> Result<(), &str> {
+    pub fn validate(&self, suclass: u8, protocol: u8) -> Result<(), &str> {
         let error = Err("The interface base class is not compatible with the interface subclass and protocol. Pease check https://www.usb.org/defined-class-codes");
         match self {
             InterfaceDeviceClass::Audio => Ok(()),
             InterfaceDeviceClass::CommunicationAndCDCControl => Ok(()),
             InterfaceDeviceClass::HumanInterfaceDevice => Ok(()),
             InterfaceDeviceClass::Physical => Ok(()),
-            InterfaceDeviceClass::Image => match b_sub_class {
-                0x01 => match b_protocol {
+            InterfaceDeviceClass::Image => match suclass {
+                0x01 => match protocol {
                     0x01 => Ok(()),
                     _ => error,
                 },
@@ -52,8 +52,8 @@ impl InterfaceDeviceClass {
             InterfaceDeviceClass::MassStorage => Ok(()),
             InterfaceDeviceClass::CdcData => Ok(()),
             InterfaceDeviceClass::SmartCard => Ok(()),
-            InterfaceDeviceClass::ContentSecurity => match b_sub_class {
-                0x00 => match b_protocol {
+            InterfaceDeviceClass::ContentSecurity => match suclass {
+                0x00 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
@@ -61,111 +61,96 @@ impl InterfaceDeviceClass {
             },
             InterfaceDeviceClass::Video => Ok(()),
             InterfaceDeviceClass::PersonalHealthcare => Ok(()),
-            InterfaceDeviceClass::AudioVideo => match b_sub_class {
-                0x01 => match b_protocol {
-                    0x00 => Ok(()),
-                    _ => error,
-                },
-                0x02 => match b_protocol {
-                    0x00 => Ok(()),
-                    _ => error,
-                },
-                0x03 => match b_protocol {
+            InterfaceDeviceClass::AudioVideo => match suclass {
+                0x01 | 0x02 | 0x03 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            InterfaceDeviceClass::UsbTypeCBridge => match b_sub_class {
-                0x00 => match b_protocol {
+            InterfaceDeviceClass::UsbTypeCBridge => match suclass {
+                0x00 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            InterfaceDeviceClass::UsbBulkDisplay => match b_sub_class {
-                0x00 => match b_protocol {
+            InterfaceDeviceClass::UsbBulkDisplay => match suclass {
+                0x00 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            InterfaceDeviceClass::MctpOverUSB => match b_sub_class {
-                0x00 => match b_protocol {
-                    0x01 => Ok(()),
-                    0x02 => Ok(()),
-                    _ => error,
-                },
-                0x01 => match b_protocol {
-                    0x01 => Ok(()),
-                    0x02 => Ok(()),
+            InterfaceDeviceClass::MctpOverUSB => match suclass {
+                0x00 | 0x01 => match protocol {
+                    0x01 | 0x02 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            InterfaceDeviceClass::I3c => match b_sub_class {
-                0x00 => match b_protocol {
+            InterfaceDeviceClass::I3c => match suclass {
+                0x00 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            InterfaceDeviceClass::Diagnostic => match b_sub_class {
-                0x01 => match b_protocol {
+            InterfaceDeviceClass::Diagnostic => match suclass {
+                0x01 => match protocol {
                     0x01 => Ok(()),
                     _ => error,
                 },
-                0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 => match b_protocol {
+                0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 => match protocol {
                     0x00 | 0x01 => Ok(()),
                     _ => error,
                 },
-                0x08 => match b_protocol {
+                0x08 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            InterfaceDeviceClass::WirelessController => match b_sub_class {
-                0x01 => match b_protocol {
+            InterfaceDeviceClass::WirelessController => match suclass {
+                0x01 => match protocol {
                     0x01 | 0x02 | 0x03 | 0x04 => Ok(()),
                     _ => error,
                 },
-                0x02 => match b_protocol {
-                    0x01 | 0x02 | 0x03 | 0x05 => Ok(()),
+                0x02 => match protocol {
+                    0x01 | 0x02 | 0x03 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            InterfaceDeviceClass::Miscellaneous => match b_sub_class {
-                0x01 | 0x02 | 0x06 => match b_protocol {
-                    0x01 => Ok(()),
-                    0x02 => Ok(()),
+            InterfaceDeviceClass::Miscellaneous => match suclass {
+                0x01 | 0x02 | 0x06 => match protocol {
+                    0x01 | 0x02 => Ok(()),
                     _ => error,
                 },
-                0x03 => match b_protocol {
+                0x03 => match protocol {
                     0x01 => Ok(()),
                     _ => error,
                 },
-                0x04 => match b_protocol {
+                0x04 => match protocol {
                     0x01 | 0x02 | 0x03 | 0x04 | 0x05 | 0x06 | 0x07 => Ok(()),
                     _ => error,
                 },
-                0x05 | 0x07 => match b_protocol {
+                0x05 | 0x07 => match protocol {
                     0x00 | 0x01 | 0x02 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            InterfaceDeviceClass::ApplicationSpecific => match b_sub_class {
-                0x01 => match b_protocol {
+            InterfaceDeviceClass::ApplicationSpecific => match suclass {
+                0x01 => match protocol {
                     0x01 => Ok(()),
                     _ => error,
                 },
-                0x02 => match b_protocol {
+                0x02 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
-                0x03 => match b_protocol {
+                0x03 => match protocol {
                     0x00 | 0x01 => Ok(()),
                     _ => error,
                 },
@@ -193,8 +178,8 @@ mod tests {
     const INTERFACE_VIDEO: u8 = 0x0E;
     const INTERFACE_PERSONAL_HEALTHCARE: u8 = 0x0F;
     const INTERFACE_AUDIO_VIDEO: u8 = 0x10;
-    const INTERFACE_USB_TYPE_C_BRIDGE: u8 = 0x12;
-    const INTERFACE_USB_BULK_DISPLAY: u8 = 0x13;
+    const INTERFACE_USTYPE_C_BRIDGE: u8 = 0x12;
+    const INTERFACE_USBULK_DISPLAY: u8 = 0x13;
     const INTERFACE_MCTP_OVER_USB: u8 = 0x14;
     const INTERFACE_I3C: u8 = 0x15;
     const INTERFACE_DIAGNOSTIC: u8 = 0xDC;
@@ -261,11 +246,11 @@ mod tests {
         );
         assert_eq!(
             InterfaceDeviceClass::UsbTypeCBridge.encode().unwrap(),
-            INTERFACE_USB_TYPE_C_BRIDGE
+            INTERFACE_USTYPE_C_BRIDGE
         );
         assert_eq!(
             InterfaceDeviceClass::UsbBulkDisplay.encode().unwrap(),
-            INTERFACE_USB_BULK_DISPLAY
+            INTERFACE_USBULK_DISPLAY
         );
         assert_eq!(
             InterfaceDeviceClass::MctpOverUSB.encode().unwrap(),

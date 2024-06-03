@@ -6,15 +6,24 @@ use super::interface_device_class::InterfaceDeviceClass;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InterfaceDescriptor {
-    pub b_length: u8,
-    pub b_descriptor_type: DescriptorType,
-    pub b_interface_number: u8,
-    pub b_alternate_setting: u8,
-    pub b_num_endpoints: u8,
-    pub b_interface_class: InterfaceDeviceClass,
-    pub b_interface_sub_class: u8,
-    pub b_interface_protocol: u8,
-    pub i_interface: u8,
+    /// Turns into `bLength`
+    pub length: u8,
+    /// Turns into `bDescriptorType`
+    pub descriptor_type: DescriptorType,
+    /// Turns into `bInterfaceNumber`
+    pub interface_number: u8,
+    /// Turns into `bAlternateSetting`
+    pub alternate_setting: u8,
+    /// Turns into `bNumEndpoints`
+    pub num_endpoints: u8,
+    /// Turns into `bInterfaceClass`
+    pub interface_class: InterfaceDeviceClass,
+    /// Turns into `bInterfaceSubClass`
+    pub interface_suclass: u8,
+    /// Turns into `bInterfaceProtocol`
+    pub interface_protocol: u8,
+    /// Turns into `iInterface`
+    pub interface: u8,
 }
 
 impl Descriptor for InterfaceDescriptor {
@@ -22,44 +31,44 @@ impl Descriptor for InterfaceDescriptor {
         let mut bytes = Vec::<u8>::new();
         bytes.push(9);
         bytes.push(DescriptorType::Interface.encode()?);
-        bytes.push(self.b_interface_number);
-        bytes.push(self.b_alternate_setting);
-        bytes.push(self.b_num_endpoints);
-        bytes.push(self.b_interface_class.encode()?);
-        bytes.push(self.b_interface_sub_class);
-        bytes.push(self.b_interface_protocol);
-        bytes.push(self.i_interface);
-        
-        if bytes.len() != self.b_length as usize {
-            return Err("b_length does not match the actual length");
+        bytes.push(self.interface_number);
+        bytes.push(self.alternate_setting);
+        bytes.push(self.num_endpoints);
+        bytes.push(self.interface_class.encode()?);
+        bytes.push(self.interface_suclass);
+        bytes.push(self.interface_protocol);
+        bytes.push(self.interface);
+
+        if bytes.len() != self.length as usize {
+            return Err("length does not match the actual length");
         }
 
         Ok(bytes)
     }
 
     fn get_w_value(&self) -> u16 {
-        (self.b_descriptor_type.encode().unwrap() as u16) << 8 | self.b_interface_number as u16
+        (self.descriptor_type.encode().unwrap() as u16) << 8 | self.interface_number as u16
     }
-    
+
     fn get_descriptor_type(&self) -> DescriptorType {
-        self.b_descriptor_type
+        self.descriptor_type
     }
 }
 
 #[cfg(test)]
 pub mod tests {
 
-    use crate::interface::interface::Interface;
+    use crate::interface::interface_intrinics::InterfaceIntrinics;
 
     use super::*;
 
     #[test]
     fn test_encode() {
-        let interface_descriptor = Interface {
-            b_alternate_setting: 0,
-            b_interface_class: InterfaceDeviceClass::HumanInterfaceDevice,
-            b_interface_sub_class: 0,
-            b_interface_protocol: 0,
+        let interface_descriptor = InterfaceIntrinics {
+            alternate_setting: 0,
+            interface_class: InterfaceDeviceClass::HumanInterfaceDevice,
+            interface_suclass: 0,
+            interface_protocol: 0,
         }
         .build(0, 0, 1)
         .unwrap();
