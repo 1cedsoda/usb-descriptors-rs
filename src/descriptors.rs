@@ -97,7 +97,7 @@ mod tests {
                     }],
                 }],
             },
-            StringBuidler::languages(vec![EN_US]),
+            &StringBuidler::languages(vec![EN_US]),
         )
         .unwrap();
 

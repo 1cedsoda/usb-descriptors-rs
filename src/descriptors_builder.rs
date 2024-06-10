@@ -49,7 +49,7 @@ impl DescriptorsBuilder {
     ) -> Result<(), &'a str> {
         let num_endpoints = builder.endpoints.len() as u8;
 
-        self.add_string_descriptor(&builder.interface);
+        self.add_string_descriptor(&builder.interface)?;
 
         let descriptor = builder.build(
             self.interface_descriptor_index,
@@ -94,9 +94,9 @@ impl DescriptorsBuilder {
     fn add_device_descriptor<'a>(&mut self, builder: &'a DeviceBuilder) -> Result<(), &'a str> {
         let num_configurations = builder.configurations.len() as u8;
 
-        self.add_string_descriptor(&builder.manufacturer);
-        self.add_string_descriptor(&builder.product);
-        self.add_string_descriptor(&builder.serial_number);
+        self.add_string_descriptor(&builder.manufacturer)?;
+        self.add_string_descriptor(&builder.product)?;
+        self.add_string_descriptor(&builder.serial_number)?;
 
         let descriptor = builder.build(
             num_configurations,
@@ -124,23 +124,23 @@ impl DescriptorsBuilder {
     }
 
     pub fn build<'a>(
-        device_builder: &DeviceBuilder,
-        language: StringBuidler,
+        device_builder: &'a DeviceBuilder,
+        language: &'a StringBuidler,
     ) -> Result<DescriptorsBuilder, &'a str> {
         let mut helper = DescriptorsBuilder::default();
 
-        helper.add_string_descriptor(&language);
+        helper.add_string_descriptor(&language)?;
 
         for configuration_builder in device_builder.configurations.iter().rev() {
             for interface_builder in configuration_builder.interfaces.iter().rev() {
                 for endpoint_builder in interface_builder.endpoints.iter().rev() {
-                    helper.add_endpoint_descriptor(endpoint_builder);
+                    helper.add_endpoint_descriptor(endpoint_builder)?;
                 }
-                helper.add_interface_descriptor(interface_builder);
+                helper.add_interface_descriptor(interface_builder)?;
             }
-            helper.add_configuration_descriptor(configuration_builder);
+            helper.add_configuration_descriptor(configuration_builder)?;
         }
-        helper.add_device_descriptor(device_builder);
+        helper.add_device_descriptor(&device_builder)?;
 
         helper.descriptors.reverse();
         helper.w_values.reverse();

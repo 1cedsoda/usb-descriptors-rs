@@ -1,11 +1,8 @@
 use alloc::vec::Vec;
 
-use crate::{
-    descriptor_type::DescriptorType, endpoint::endpoint_builder::EndpointBuilder,
-    string::string_builder::StringBuidler,
-};
+use crate::{endpoint::endpoint_builder::EndpointBuilder, string::string_builder::StringBuidler};
 
-use super::{interface_class::InterfaceClass, interface_descriptor::{InterfaceDescriptor, INTERFACE_DESCRIPTOR_TYPE}};
+use super::{interface_class::InterfaceClass, interface_descriptor::InterfaceDescriptor};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InterfaceBuilder {
