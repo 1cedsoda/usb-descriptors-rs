@@ -1,49 +1,57 @@
 use crate::binary::EncodeByte;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum DeviceDeviceClass {
-    Device = 0x00,
-    CommunicationAndCDCControl = 0x02,
-    Hub = 0x09,
-    Billboard = 0x11,
-    Diagnostic = 0xDC,
-    Miscellaneous = 0xEF,
-    VendorSpecific = 0xFF,
+pub enum DeviceClass {
+    Device,
+    CommunicationAndCDCControl,
+    Hub,
+    Billboard,
+    Diagnostic,
+    Miscellaneous,
+    VendorSpecific,
 }
 
-impl EncodeByte for DeviceDeviceClass {
+impl EncodeByte for DeviceClass {
     fn encode(&self) -> Result<u8, &str> {
-        Ok(*self as u8)
+        match *self {
+            DeviceClass::Device => Ok(0x00),
+            DeviceClass::CommunicationAndCDCControl => Ok(0x02),
+            DeviceClass::Hub => Ok(0x09),
+            DeviceClass::Billboard => Ok(0x11),
+            DeviceClass::Diagnostic => Ok(0xDC),
+            DeviceClass::Miscellaneous => Ok(0xEF),
+            DeviceClass::VendorSpecific => Ok(0xFF),
+        }
     }
 }
 
-impl DeviceDeviceClass {
+impl DeviceClass {
     pub fn validate(&self, suclass: u8, protocol: u8) -> Result<(), &str> {
         let error: Result<(), &str> = Err("The device base class is not compatible with the interface subclass and protocol. Pease check https://www.usb.org/defined-class-codes");
         match self {
-            DeviceDeviceClass::Device => match suclass {
+            DeviceClass::Device => match suclass {
                 0x00 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            DeviceDeviceClass::CommunicationAndCDCControl => Ok(()),
-            DeviceDeviceClass::Hub => match suclass {
+            DeviceClass::CommunicationAndCDCControl => Ok(()),
+            DeviceClass::Hub => match suclass {
                 0x00 => match protocol {
                     0x00 | 0x01 | 0x02 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            DeviceDeviceClass::Billboard => match suclass {
+            DeviceClass::Billboard => match suclass {
                 0x00 => match protocol {
                     0x00 => Ok(()),
                     _ => error,
                 },
                 _ => error,
             },
-            DeviceDeviceClass::Diagnostic => match suclass {
+            DeviceClass::Diagnostic => match suclass {
                 0x01 => match protocol {
                     0x01 => Ok(()),
                     _ => error,
@@ -58,7 +66,7 @@ impl DeviceDeviceClass {
                 },
                 _ => error,
             },
-            DeviceDeviceClass::Miscellaneous => match suclass {
+            DeviceClass::Miscellaneous => match suclass {
                 0x01 | 0x02 | 0x06 => match protocol {
                     0x01 => Ok(()),
                     0x02 => Ok(()),
@@ -78,7 +86,7 @@ impl DeviceDeviceClass {
                 },
                 _ => error,
             },
-            DeviceDeviceClass::VendorSpecific => Ok(()),
+            DeviceClass::VendorSpecific => Ok(()),
         }
     }
 }
@@ -97,28 +105,20 @@ mod tests {
 
     #[test]
     fn test_device_device_class() {
-        assert_eq!(DeviceDeviceClass::Device.encode().unwrap(), DEVICE_DEVICE);
+        assert_eq!(DeviceClass::Device.encode().unwrap(), DEVICE_DEVICE);
         assert_eq!(
-            DeviceDeviceClass::CommunicationAndCDCControl
-                .encode()
-                .unwrap(),
+            DeviceClass::CommunicationAndCDCControl.encode().unwrap(),
             DEVICE_COMMUNICATION_AND_CDC_CONTROL
         );
-        assert_eq!(DeviceDeviceClass::Hub.encode().unwrap(), DEVICE_HUB);
+        assert_eq!(DeviceClass::Hub.encode().unwrap(), DEVICE_HUB);
+        assert_eq!(DeviceClass::Billboard.encode().unwrap(), DEVICE_BILLBOARD);
+        assert_eq!(DeviceClass::Diagnostic.encode().unwrap(), DEVICE_DIAGNOSTIC);
         assert_eq!(
-            DeviceDeviceClass::Billboard.encode().unwrap(),
-            DEVICE_BILLBOARD
-        );
-        assert_eq!(
-            DeviceDeviceClass::Diagnostic.encode().unwrap(),
-            DEVICE_DIAGNOSTIC
-        );
-        assert_eq!(
-            DeviceDeviceClass::Miscellaneous.encode().unwrap(),
+            DeviceClass::Miscellaneous.encode().unwrap(),
             DEVICE_MISCELLANEOUS
         );
         assert_eq!(
-            DeviceDeviceClass::VendorSpecific.encode().unwrap(),
+            DeviceClass::VendorSpecific.encode().unwrap(),
             DEVICE_VENDOR_SPECIFIC
         );
     }

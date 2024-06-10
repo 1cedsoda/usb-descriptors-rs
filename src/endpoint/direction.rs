@@ -2,13 +2,16 @@ use crate::binary::EncodeByte;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Direction {
-    Out = 0x00,
-    In = 0x01,
+    Out,
+    In,
 }
 
 impl EncodeByte for Direction {
     fn encode(&self) -> Result<u8, &str> {
-        Ok(*self as u8)
+        match *self {
+            Direction::Out => Ok(0x00),
+            Direction::In => Ok(0x01),
+        }
     }
 }
 

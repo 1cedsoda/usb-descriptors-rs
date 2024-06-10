@@ -6,14 +6,13 @@ use crate::{
     descriptor_type::DescriptorType,
 };
 
-use super::configuration_attributes::ConfigurationAttributes;
+use super::{configuration_attributes::ConfigurationAttributes, milliamperes::Milliamperes};
+
+pub const CONFIGURATION_DESCRIPTOR_LENGTH: u8 = 9;
+pub const CONFIGURATION_DESCRIPTOR_TYPE: DescriptorType = DescriptorType::Configuration;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ConfigurationDescriptor {
-    /// Turns into `bLength`
-    pub length: u8,
-    /// Turns into `bDescriptorType`
-    pub descriptor_type: DescriptorType,
     /// Turns into `wTotalLength`
     pub total_length: u16,
     /// Turns into `bNumInterfaces`
@@ -25,33 +24,29 @@ pub struct ConfigurationDescriptor {
     /// Turns into `bmAttributes`
     pub attributes: ConfigurationAttributes,
     /// Turns into `bMaxPower`
-    pub max_power: u8,
+    pub max_power: Milliamperes,
 }
 
 impl Descriptor for ConfigurationDescriptor {
     fn encode(&self) -> Result<Vec<u8>, &str> {
         let mut bytes = Vec::<u8>::new();
-        bytes.push(self.length);
-        bytes.push(self.descriptor_type.encode()?);
+        bytes.push(CONFIGURATION_DESCRIPTOR_LENGTH);
+        bytes.push(CONFIGURATION_DESCRIPTOR_TYPE.encode()?);
         bytes.extend_from_slice(&self.total_length.to_le_bytes());
         bytes.push(self.num_interfaces);
         bytes.push(self.configuration_value);
         bytes.push(self.configuration);
         bytes.append(self.attributes.encode()?.as_mut());
-        bytes.push(self.max_power);
+        bytes.push(self.max_power.encode()?);
 
-        if bytes.len() != self.length as usize {
-            return Err("length does not match the actual length");
+        if bytes.len() != CONFIGURATION_DESCRIPTOR_LENGTH as usize {
+            return Err("configuration bLength not match the actual length");
         }
 
         Ok(bytes)
     }
 
-    fn get_w_value(&self) -> u16 {
-        (self.descriptor_type.encode().unwrap() as u16) << 8 | self.configuration_value as u16
-    }
-
     fn get_descriptor_type(&self) -> DescriptorType {
-        self.descriptor_type
+        CONFIGURATION_DESCRIPTOR_TYPE
     }
 }

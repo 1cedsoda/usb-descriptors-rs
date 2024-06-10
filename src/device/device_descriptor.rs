@@ -4,20 +4,20 @@ use crate::{
     binary::{EncodeByte, EncodeBytes},
     descriptor::Descriptor,
     descriptor_type::DescriptorType,
+    version::Version,
 };
 
-use super::{bcd_version::BcdVersion, device_device_class::DeviceDeviceClass};
+use super::device_class::DeviceClass;
+
+pub const DEVICE_DESCRIPTOR_LENGTH: u8 = 18;
+pub const DEVICE_DESCRIPTOR_TYPE: DescriptorType = DescriptorType::Device;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DeviceDescriptor {
-    /// Turns into `bLength`
-    pub length: u8,
-    /// Turns into `bDescriptorType`
-    pub descriptor_type: DescriptorType,
     /// Turns into `bcdUSB`
-    pub bcd_usb: BcdVersion,
+    pub usb: Version,
     /// Turns into `bDeviceClass`
-    pub device_class: DeviceDeviceClass,
+    pub device_class: DeviceClass,
     /// Turns into `bDeviceSubClass`
     pub device_suclass: u8,
     /// Turns into `bDeviceProtocol`
@@ -29,7 +29,7 @@ pub struct DeviceDescriptor {
     /// Turns into `idProduct`
     pub id_product: u16,
     /// Turns into `bcdDevice`
-    pub bcd_device: BcdVersion,
+    pub device: Version,
     /// Turns into `iManufacturer`
     pub manufacturer: u8,
     /// Turns into `iProduct`
@@ -46,33 +46,29 @@ impl Descriptor for DeviceDescriptor {
             .validate(self.device_suclass, self.device_protocol)?;
 
         let mut bytes = Vec::<u8>::new();
-        bytes.push(self.length);
-        bytes.push(self.descriptor_type.encode()?);
-        bytes.append(self.bcd_usb.encode()?.as_mut());
+        bytes.push(DEVICE_DESCRIPTOR_LENGTH);
+        bytes.push(DEVICE_DESCRIPTOR_TYPE.encode()?);
+        bytes.append(self.usb.encode()?.as_mut());
         bytes.push(self.device_class.encode()?);
         bytes.push(self.device_suclass);
         bytes.push(self.device_protocol);
         bytes.push(self.max_packet_size_0);
         bytes.extend_from_slice(&self.id_vendor.to_le_bytes());
         bytes.extend_from_slice(&self.id_product.to_le_bytes());
-        bytes.append(self.bcd_device.encode()?.as_mut());
+        bytes.append(self.device.encode()?.as_mut());
         bytes.push(self.manufacturer);
         bytes.push(self.product);
         bytes.push(self.serial_number);
         bytes.push(self.num_configurations);
-        
-        if bytes.len() != self.length as usize {
-            return Err("length does not match the actual length");
+
+        if bytes.len() != DEVICE_DESCRIPTOR_LENGTH as usize {
+            return Err("device bLength does not match the actual length");
         }
-        
+
         Ok(bytes)
     }
 
-    fn get_w_value(&self) -> u16 {
-        (self.descriptor_type.encode().unwrap() as u16) << 8
-    }
-    
     fn get_descriptor_type(&self) -> DescriptorType {
-        self.descriptor_type
+        DEVICE_DESCRIPTOR_TYPE
     }
 }

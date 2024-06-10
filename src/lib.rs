@@ -14,5 +14,7 @@ pub mod string;
 
 pub mod binary;
 pub mod descriptor;
-pub mod descriptor_store;
+pub mod descriptors;
+pub mod descriptors_builder;
 pub mod descriptor_type;
+pub mod version;

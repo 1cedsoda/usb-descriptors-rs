@@ -3,12 +3,12 @@ use alloc::vec::Vec;
 use crate::binary::EncodeBytes;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct BcdVersion {
+pub struct Version {
     pub major: u8,
     pub minor: u8,
 }
 
-impl EncodeBytes for BcdVersion {
+impl EncodeBytes for Version {
     fn encode(&self) -> Result<Vec<u8>, &str> {
         let mut bytes = Vec::<u8>::new();
         bytes.push(self.minor);
@@ -17,31 +17,31 @@ impl EncodeBytes for BcdVersion {
     }
 }
 
-pub const US1_0: BcdVersion = BcdVersion {
+pub const USB1_0: Version = Version {
     major: 0x01,
     minor: 0x00,
 };
-pub const US1_1: BcdVersion = BcdVersion {
+pub const USB1_1: Version = Version {
     major: 0x01,
     minor: 0x01,
 };
-pub const US2_0: BcdVersion = BcdVersion {
+pub const USB2_0: Version = Version {
     major: 0x02,
     minor: 0x00,
 };
-pub const US2_1: BcdVersion = BcdVersion {
+pub const USB2_1: Version = Version {
     major: 0x02,
     minor: 0x01,
 };
-pub const US3_0: BcdVersion = BcdVersion {
+pub const USB3_0: Version = Version {
     major: 0x03,
     minor: 0x00,
 };
-pub const US3_1: BcdVersion = BcdVersion {
+pub const USB3_1: Version = Version {
     major: 0x03,
     minor: 0x01,
 };
-pub const US3_2: BcdVersion = BcdVersion {
+pub const USB3_2: Version = Version {
     major: 0x03,
     minor: 0x02,
 };

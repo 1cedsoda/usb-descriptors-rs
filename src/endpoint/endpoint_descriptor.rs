@@ -1,15 +1,19 @@
 use alloc::vec::Vec;
 
-use crate::{binary::EncodeByte, descriptor::Descriptor, descriptor_type::DescriptorType};
+use crate::{
+    binary::EncodeByte, configuration::configuration_descriptor::CONFIGURATION_DESCRIPTOR_TYPE,
+    descriptor::Descriptor, descriptor_type::DescriptorType,
+};
 
 use super::{endpoint_address::EndpointAddress, endpoint_attributes::EndpointAttributes};
+
+pub const ENDPOINT_DESCRIPTOR_LENGTH: u8 = 7;
+pub const ENDPOINT_DESCRIPTOR_TYPE: DescriptorType = DescriptorType::Endpoint;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EndpointDescriptor {
     /// Turns into `bLength`
     pub length: u8,
-    /// Turns into `bDescriptorType`
-    pub descriptor_type: DescriptorType,
     /// Turns into `bEndpointAddress`
     pub endpoint_address: EndpointAddress,
     /// Turns into `bmAttributes`
@@ -24,33 +28,28 @@ impl Descriptor for EndpointDescriptor {
     fn encode(&self) -> Result<Vec<u8>, &str> {
         let mut bytes = Vec::<u8>::new();
         bytes.push(self.length);
-        bytes.push(DescriptorType::Endpoint.encode()?);
+        bytes.push(ENDPOINT_DESCRIPTOR_TYPE.encode()?);
         bytes.push(self.endpoint_address.encode()?);
         bytes.push(self.attributes.encode()?);
         bytes.extend_from_slice(&self.max_packet_size.to_le_bytes());
         bytes.push(self.interval);
 
         if bytes.len() != self.length as usize {
-            return Err("length does not match the actual length");
+            return Err("endpoint bLength does not match the actual length");
         }
 
         Ok(bytes)
     }
 
-    fn get_w_value(&self) -> u16 {
-        (self.descriptor_type.encode().unwrap() as u16) << 8
-            | self.endpoint_address.encode().unwrap() as u16
-    }
-
     fn get_descriptor_type(&self) -> DescriptorType {
-        self.descriptor_type
+        CONFIGURATION_DESCRIPTOR_TYPE
     }
 }
 
 #[cfg(test)]
 pub mod tests {
     use crate::endpoint::{
-        direction::Direction, endpoint_intrinsics::EndpointIntrinsics, sync_type::SyncType,
+        direction::Direction, endpoint_builder::EndpointBuilder, sync_type::SyncType,
         transfer_type::TransferType, usage_type::UsageType,
     };
 
@@ -58,7 +57,7 @@ pub mod tests {
 
     #[test]
     fn test_encode() {
-        let endpoint_descriptor = EndpointIntrinsics {
+        let endpoint_descriptor = EndpointBuilder {
             endpoint_address: EndpointAddress {
                 endpoint_number: 1,
                 direction: Direction::In,

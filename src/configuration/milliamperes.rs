@@ -8,7 +8,7 @@ impl EncodeByte for Milliamperes {
         if self.0 > 500 {
             return Err("Milliamperes cannot be greater than 500.");
         }
-        
+
         let half = self.0 / 2;
 
         Ok(half as u8)

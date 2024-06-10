@@ -1,16 +1,17 @@
-use crate::descriptor_type::DescriptorType;
+use alloc::vec::Vec;
 
-use super::{
-    bcd_version::BcdVersion, device_descriptor::DeviceDescriptor,
-    device_device_class::DeviceDeviceClass,
+use crate::{
+    configuration::configuration_builder::ConfigurationBuilder,
+    string::string_builder::StringBuidler, version::Version,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DeviceIntrinsics {
+use super::{device_class::DeviceClass, device_descriptor::DeviceDescriptor};
+
+pub struct DeviceBuilder {
     /// Turns into `bcdUSB`
-    pub bcd_usb: BcdVersion,
+    pub usb: Version,
     /// Turns into `bDeviceClass`
-    pub device_class: DeviceDeviceClass,
+    pub device_class: DeviceClass,
     /// Turns into `bDeviceSubClass`
     pub device_suclass: u8,
     /// Turns into `bDeviceProtocol`
@@ -22,10 +23,18 @@ pub struct DeviceIntrinsics {
     /// Turns into `idProduct`
     pub id_product: u16,
     /// Turns into `bcdDevice`
-    pub bcd_device: BcdVersion,
+    pub device: Version,
+    /// Turns into `iManufacturer`
+    pub manufacturer: StringBuidler,
+    /// Turns into `iProduct`
+    pub product: StringBuidler,
+    /// Turns into `iSerialNumber`
+    pub serial_number: StringBuidler,
+    /// Turns into `bNumConfigurations`
+    pub configurations: Vec<ConfigurationBuilder>,
 }
 
-impl DeviceIntrinsics {
+impl DeviceBuilder {
     pub fn build(
         &self,
         num_configurations: u8,
@@ -37,16 +46,14 @@ impl DeviceIntrinsics {
             .validate(self.device_suclass, self.device_protocol)?;
 
         Ok(DeviceDescriptor {
-            length: 18,
-            descriptor_type: DescriptorType::Device,
-            bcd_usb: self.bcd_usb,
+            usb: self.usb,
             device_class: self.device_class,
             device_suclass: self.device_suclass,
             device_protocol: self.device_protocol,
             max_packet_size_0: self.max_packet_size_0,
             id_vendor: self.id_vendor,
             id_product: self.id_product,
-            bcd_device: self.bcd_device,
+            device: self.device,
             manufacturer: manufacturer,
             product: product,
             serial_number: serial_number,

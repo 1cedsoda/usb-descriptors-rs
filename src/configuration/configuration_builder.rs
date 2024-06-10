@@ -1,20 +1,29 @@
-use crate::{binary::EncodeByte, descriptor_type::DescriptorType};
+use alloc::vec::Vec;
+
+use crate::{
+    interface::interface_builder::InterfaceBuilder, string::string_builder::StringBuidler,
+};
 
 use super::{
     configuration_attributes::ConfigurationAttributes,
     configuration_descriptor::ConfigurationDescriptor, milliamperes::Milliamperes,
 };
 
-pub struct ConfigurationIntrinsics {
-    /// Turns into `bDescriptorType`
-    pub descriptor_type: DescriptorType,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConfigurationBuilder {
+    /// Turns into `bConfigurationValue`
+    pub configuration_value: u8,
     /// Turns into `bmAttributes`
     pub attributes: ConfigurationAttributes,
-    /// Turns into `bMaxPower`
+    /// Max power consumption of the USB device from the bus in milliamperes. (Will be divided by to to fit u8 later)
     pub max_power: Milliamperes,
+    /// Turns into `configuration`
+    pub configuration: StringBuidler,
+    /// Turns into `num_interfaces`
+    pub interfaces: Vec<InterfaceBuilder>,
 }
 
-impl ConfigurationIntrinsics {
+impl ConfigurationBuilder {
     pub fn build(
         &self,
         total_length: u16,
@@ -27,14 +36,12 @@ impl ConfigurationIntrinsics {
         }
 
         Ok(ConfigurationDescriptor {
-            length: 9,
-            descriptor_type: self.descriptor_type,
             total_length,
             num_interfaces,
             configuration_value,
             configuration,
             attributes: self.attributes.clone(),
-            max_power: self.max_power.encode()?,
+            max_power: self.max_power,
         })
     }
 }

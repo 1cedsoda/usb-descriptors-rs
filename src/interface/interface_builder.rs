@@ -1,22 +1,29 @@
-use crate::descriptor_type::DescriptorType;
+use alloc::vec::Vec;
 
-use super::{
-    interface_descriptor::InterfaceDescriptor, interface_device_class::InterfaceDeviceClass,
+use crate::{
+    descriptor_type::DescriptorType, endpoint::endpoint_builder::EndpointBuilder,
+    string::string_builder::StringBuidler,
 };
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct InterfaceIntrinics {
+use super::{interface_class::InterfaceClass, interface_descriptor::{InterfaceDescriptor, INTERFACE_DESCRIPTOR_TYPE}};
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InterfaceBuilder {
     /// Turns into `bAlternateSetting`
     pub alternate_setting: u8,
     /// Turns into `bInterfaceClass`
-    pub interface_class: InterfaceDeviceClass,
+    pub interface_class: InterfaceClass,
     /// Turns into `bInterfaceSubClass`
     pub interface_suclass: u8,
     /// Turns into `bInterfaceProtocol`
     pub interface_protocol: u8,
+    /// Turns into `iInterface`
+    pub interface: StringBuidler,
+    /// Turns into `bNumEndpoints`
+    pub endpoints: Vec<EndpointBuilder>,
 }
 
-impl InterfaceIntrinics {
+impl InterfaceBuilder {
     pub fn build(
         &self,
         interface_number: u8,
@@ -26,19 +33,18 @@ impl InterfaceIntrinics {
         if num_endpoints == 0 {
             return Err("InterfaceDescript need at least 1 endpoint.");
         }
+
         self.interface_class
             .validate(self.interface_suclass, self.interface_protocol)?;
 
         Ok(InterfaceDescriptor {
-            length: 9,
-            descriptor_type: DescriptorType::Interface,
             interface_number,
             alternate_setting: self.alternate_setting,
-            num_endpoints: num_endpoints,
+            num_endpoints,
             interface_class: self.interface_class,
             interface_suclass: self.interface_suclass,
             interface_protocol: self.interface_protocol,
-            interface: interface,
+            interface,
         })
     }
 }
