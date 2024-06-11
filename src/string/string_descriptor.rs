@@ -14,8 +14,6 @@ pub const STRING_DESCRIPTOR_TYPE: DescriptorType = DescriptorType::String;
 pub struct StringDescriptor {
     /// The USB standart doesn't define an identifier for string descriptors but we need one for the `get_w_value` function
     pub index: u8,
-    /// Turns into `bLength`
-    pub length: u8,
     /// Turns into `bString`
     pub string: StringContent,
 }
@@ -23,11 +21,13 @@ pub struct StringDescriptor {
 impl Descriptor for StringDescriptor {
     fn encode(&self) -> Result<Vec<u8>, &str> {
         let mut bytes = Vec::<u8>::new();
-        bytes.push(self.length);
+        let string_encoded = self.string.encode()?;
+        let length = string_encoded.len() as u8 + 2;
+        bytes.push(length);
         bytes.push(STRING_DESCRIPTOR_TYPE.encode()?);
         bytes.append(&mut self.string.encode()?);
 
-        if bytes.len() != self.length as usize {
+        if bytes.len() != length as usize {
             return Err("string bLength does not match the actual length");
         }
 
@@ -41,15 +41,34 @@ impl Descriptor for StringDescriptor {
 
 #[cfg(test)]
 mod tests {
-    use crate::string::string_builder::StringBuidler;
+    use alloc::string::ToString;
 
     use super::*;
 
     #[test]
-    fn test_string_descriptor_encode() {
-        let string_builder = StringBuidler::text("test");
+    fn test_encode() {
+        let descriptor = StringDescriptor {
+            index: 1,
+            string: StringContent::Text("Hello".to_string()),
+        };
 
-        let encoded = string_builder.build(0).encode().unwrap();
-        assert_eq!(encoded, vec![10, 3, 116, 0, 101, 0, 115, 0, 116, 0]);
+        let bytes = descriptor.encode().unwrap();
+        assert_eq!(
+            bytes,
+            vec![
+                12,  // bLength
+                3,   // bDescriptorType
+                72,  // H
+                0,   //
+                101, // e
+                0,   //
+                108, // l
+                0,   //
+                108, // l
+                0,   //
+                111, // o
+                0,   //
+            ]
+        );
     }
 }

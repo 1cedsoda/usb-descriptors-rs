@@ -72,3 +72,51 @@ impl Descriptor for DeviceDescriptor {
         DEVICE_DESCRIPTOR_TYPE
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::version::USB2_0;
+
+    use super::*;
+
+    #[test]
+    fn test_encode() {
+        let descriptor = DeviceDescriptor {
+            usb: USB2_0,
+            device_class: DeviceClass::Miscellaneous,
+            device_suclass: 0x01,
+            device_protocol: 0x02,
+            max_packet_size_0: 0x08,
+            id_vendor: 0x16c0,
+            id_product: 0x05df,
+            device: Version {
+                major: 0x01,
+                minor: 0x00,
+            },
+            manufacturer: 0x01,
+            product: 0x02,
+            serial_number: 0x03,
+            num_configurations: 0x01,
+        };
+
+        assert_eq!(
+            descriptor.encode().unwrap(),
+            vec![
+                18, // bLength
+                1,  // bDescriptorType
+                0x00, 0x02, // bcdUSB
+                0xef, // bDeviceClass
+                0x01, // bDeviceSubClass
+                0x02, // bDeviceProtocol
+                0x08, // bMaxPacketSize0
+                0xc0, 0x16, // idVendor
+                0xdf, 0x05, // idProduct
+                0x00, 0x01, // bcdDevice
+                0x01, // iManufacturer
+                0x02, // iProduct
+                0x03, // iSerialNumber
+                0x01, // bNumConfigurations
+            ]
+        );
+    }
+}

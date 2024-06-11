@@ -1,7 +1,7 @@
 use alloc::vec::Vec;
 
 use crate::{
-    binary::EncodeByte, configuration::configuration_descriptor::CONFIGURATION_DESCRIPTOR_TYPE,
+    binary::EncodeByte,
     descriptor::Descriptor, descriptor_type::DescriptorType,
 };
 
@@ -42,7 +42,7 @@ impl Descriptor for EndpointDescriptor {
     }
 
     fn get_descriptor_type(&self) -> DescriptorType {
-        CONFIGURATION_DESCRIPTOR_TYPE
+        ENDPOINT_DESCRIPTOR_TYPE
     }
 }
 

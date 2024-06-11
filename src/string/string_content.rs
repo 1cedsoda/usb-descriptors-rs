@@ -40,3 +40,34 @@ impl EncodeBytes for StringContent {
         Ok(bytes)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use string::ToString;
+
+    use super::*;
+    use crate::string::language_code::{DE_DE, EN_US};
+
+    #[test]
+    fn test_string_content_encode() {
+        assert_eq!(
+            StringContent::Text("Hello".to_string()).encode().unwrap(),
+            vec![
+                0x48, 0x00, // H
+                0x65, 0x00, // e
+                0x6C, 0x00, // l
+                0x6C, 0x00, // l
+                0x6F, 0x00, // o
+            ]
+        );
+        assert_eq!(
+            StringContent::Languages(vec![EN_US, DE_DE])
+                .encode()
+                .unwrap(),
+            vec![
+                0x09, 0x04, // EN_US
+                0x07, 0x04, // DE_DE
+            ]
+        );
+    }
+}

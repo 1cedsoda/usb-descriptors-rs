@@ -60,9 +60,19 @@ pub mod tests {
             interface_protocol: 0,
             interface_number: 0,
             num_endpoints: 1,
-            interface: 1,
+            interface: 4,
         };
-        let interface_descriptor_encoded = vec![9, 4, 0, 0, 1, 3, 0, 0, 1];
+        let interface_descriptor_encoded = vec![
+            9, // bLength
+            4, // bDescriptorType
+            0, // bInterfaceNumber
+            0, // bAlternateSetting
+            1, // bNumEndpoints
+            3, // bInterfaceClass
+            0, // bInterfaceSubClass
+            0, // bInterfaceProtocol
+            4, // iInterface
+        ];
         assert_eq!(
             interface_descriptor.encode().unwrap(),
             interface_descriptor_encoded

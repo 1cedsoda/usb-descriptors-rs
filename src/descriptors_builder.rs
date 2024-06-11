@@ -23,9 +23,9 @@ pub struct DescriptorsBuilder {
     pub descriptors: Vec<Box<dyn Descriptor>>,
     pub w_values: Vec<u16>,
     configuration_total_length: u16,
-    configuration_descriptor_index: u8,
-    interface_descriptor_index: u8,
-    string_descriptor_index: u8,
+    configuration_descriptor_index: u8, // counting up
+    interface_descriptor_index: u8,     // counting up
+    string_descriptor_index: u8,        // counting down
 }
 
 impl DescriptorsBuilder {
@@ -94,15 +94,15 @@ impl DescriptorsBuilder {
     fn add_device_descriptor<'a>(&mut self, builder: &'a DeviceBuilder) -> Result<(), &'a str> {
         let num_configurations = builder.configurations.len() as u8;
 
-        self.add_string_descriptor(&builder.manufacturer)?;
-        self.add_string_descriptor(&builder.product)?;
         self.add_string_descriptor(&builder.serial_number)?;
+        self.add_string_descriptor(&builder.product)?;
+        self.add_string_descriptor(&builder.manufacturer)?;
 
         let descriptor = builder.build(
             num_configurations,
-            self.string_descriptor_index - 2,
-            self.string_descriptor_index - 1,
-            self.string_descriptor_index,
+            self.string_descriptor_index + 1,
+            self.string_descriptor_index + 2,
+            self.string_descriptor_index + 3,
         )?;
         let w_value =
             encode_w_value(&DEVICE_DESCRIPTOR_TYPE, self.interface_descriptor_index).unwrap(); // TODO
@@ -115,7 +115,9 @@ impl DescriptorsBuilder {
 
     fn add_string_descriptor<'a>(&mut self, builder: &'a StringBuidler) -> Result<(), &'a str> {
         let string_index = self.string_descriptor_index;
-        self.string_descriptor_index += 1;
+        if string_index > 0 {
+            self.string_descriptor_index -= 1;
+        }
         let descriptor = builder.build(string_index);
         let w_value = encode_w_value(&STRING_DESCRIPTOR_TYPE, string_index)?;
         self.descriptors.push(Box::new(descriptor));
@@ -129,7 +131,14 @@ impl DescriptorsBuilder {
     ) -> Result<DescriptorsBuilder, &'a str> {
         let mut helper = DescriptorsBuilder::default();
 
-        helper.add_string_descriptor(&language)?;
+        let mut string_descriptor_num = 4; // 1x language + 3x in device descriptor
+        for configuration_builder in device_builder.configurations.iter() {
+            for _ in configuration_builder.interfaces.iter() {
+                string_descriptor_num += 1;
+            }
+            string_descriptor_num += 1;
+        }
+        helper.string_descriptor_index = string_descriptor_num as u8 - 1;
 
         for configuration_builder in device_builder.configurations.iter().rev() {
             for interface_builder in configuration_builder.interfaces.iter().rev() {
@@ -141,6 +150,7 @@ impl DescriptorsBuilder {
             helper.add_configuration_descriptor(configuration_builder)?;
         }
         helper.add_device_descriptor(&device_builder)?;
+        helper.add_string_descriptor(&language)?;
 
         helper.descriptors.reverse();
         helper.w_values.reverse();

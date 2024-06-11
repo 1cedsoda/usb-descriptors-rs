@@ -26,7 +26,6 @@ impl StringBuidler {
     pub fn build(&self, index: u8) -> StringDescriptor {
         StringDescriptor {
             index,
-            length: self.string.len() + 2,
             string: self.string.clone(),
         }
     }
@@ -44,5 +43,34 @@ impl Display for StringBuidler {
             }
             StringContent::Text(string) => write!(f, "Text: {}", string),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::string::language_code::{DE_DE, EN_US};
+
+    use super::*;
+
+    #[test]
+    fn test_string_builder_text() {
+        let string = StringBuidler::text("Hello, World!");
+        assert_eq!(string.to_string(), "Text: Hello, World!");
+        assert_eq!(string.build(1).string, StringContent::Text("Hello, World!".to_string()));
+    }
+
+    #[test]
+    fn test_string_builder_languages() {
+        let languages = StringContent::Languages(vec![EN_US, DE_DE]);
+        let string = StringBuidler { string: languages };
+        assert_eq!(string.to_string(), "Languages: [0x0409, 0x0407, ]");
+    }
+
+    #[test]
+    fn test_string_builder_build() {
+        let string = StringBuidler::text("Hello, World!");
+        let descriptor = string.build(1);
+        assert_eq!(descriptor.index, 1);
+        assert_eq!(descriptor.string, StringContent::Text("Hello, World!".to_string()));
     }
 }

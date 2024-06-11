@@ -1,10 +1,6 @@
 use alloc::vec::Vec;
 
-use crate::{
-    binary::{EncodeByte, EncodeBytes},
-    descriptor::Descriptor,
-    descriptor_type::DescriptorType,
-};
+use crate::{binary::EncodeByte, descriptor::Descriptor, descriptor_type::DescriptorType};
 
 use super::{configuration_attributes::ConfigurationAttributes, milliamperes::Milliamperes};
 
@@ -36,7 +32,7 @@ impl Descriptor for ConfigurationDescriptor {
         bytes.push(self.num_interfaces);
         bytes.push(self.configuration_value);
         bytes.push(self.configuration);
-        bytes.append(self.attributes.encode()?.as_mut());
+        bytes.push(self.attributes.encode()?);
         bytes.push(self.max_power.encode()?);
 
         if bytes.len() != CONFIGURATION_DESCRIPTOR_LENGTH as usize {
@@ -48,5 +44,40 @@ impl Descriptor for ConfigurationDescriptor {
 
     fn get_descriptor_type(&self) -> DescriptorType {
         CONFIGURATION_DESCRIPTOR_TYPE
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_encode() {
+        let descriptor = ConfigurationDescriptor {
+            total_length: 34,
+            num_interfaces: 1,
+            configuration_value: 2,
+            configuration: 3,
+            attributes: ConfigurationAttributes {
+                self_powered: true,
+                remote_wakeup: false,
+            },
+            max_power: Milliamperes(50),
+        };
+
+        assert_eq!(
+            descriptor.encode().unwrap(),
+            vec![
+                9,           // bLength
+                2,           // bDescriptorType
+                34,          // wTotalLength
+                0,           //
+                1,           // bNumInterfaces
+                2,           // bConfigurationValue
+                3,           // iConfiguration
+                0b1100_0000, // bmAttributes
+                25,          // bMaxPower
+            ]
+        );
     }
 }

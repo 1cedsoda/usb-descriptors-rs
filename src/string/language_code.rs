@@ -19,9 +19,8 @@ impl Display for LanguageCode {
     }
 }
 
-pub const EN_US: LanguageCode = LanguageCode(0x0409);
-pub const DE_DE: LanguageCode = LanguageCode(0x0407);
-
+pub const EN_US: LanguageCode = LanguageCode(0x0409); // English - United States
+pub const DE_DE: LanguageCode = LanguageCode(0x0407); // German - Germany
 
 #[cfg(test)]
 mod tests {
